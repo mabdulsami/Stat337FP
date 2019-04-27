@@ -3,6 +3,7 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+#FIRST RESEARCH QUESTION: IS REOCCURENCE ASSOCIATED WITH ANYTHING
 
 ```{r}
 library(MASS)
@@ -23,15 +24,15 @@ colnames(data) = c(
   "quad",
   "irradiat"
 )
-
 str(data)
 ```
+
 ```{r}
 #chisq of reoccurance and categorical variables 
-#test of independence H0 is that they are INdependent
+#test of independence H0 is that they are Independent
 #1
 tbl1 = table(data$reoccurance, data$meno)
-chisq.test(tbl1)
+chisq.test(tbl1) 
 
 #2
 #removes the first column of the table bc its values are 0
@@ -57,27 +58,104 @@ chisq.test(tbl5)
 tbl6 = table(data$reoccurance, data$irradiat)
 chisq.test(tbl6)
 
+
+#logistic regression
 lr = glm(reoccurance ~., data = data, family = binomial(logit))
 summary(lr)
 ```
 Warning is because of small cell values so we can ignore it
 
 ```{r}
+#ALL T TESTS ON QUALITATIVE VARIABLES
 #t test of quad
-quad = table(data['quad'])
+cat = table(data['quad'])
+shapiro.test(cat) #Found to be normal
 t.test(cat)
 
-#t sample t test of degree of mal to reoccurance
-rec = table(data['reoccurance'])
-t.test(rec)
-
+#t test of nodecaps
 lr = table(data['nodecaps'])
+shapiro.test(lr)  #Found to be normal
 t.test(lr)
 
-t.test(rec,lr)
+#t test of meno
+mn = table(data['meno'])
+shapiro.test(mn)
+t.test(mn)
 
-lr = glm(reoccurance ~., data = data, family = binomial(logit))
-summary(lr)
+#t test of maldeg
+mg = table(data['maldeg'])
+shapiro.test(mg)
+t.test(mg)
+
+#ALL NON NORMAL DATA
+#t test of breast
+br = table(data['breast'])
+shapiro.test(as.numeric(data$breast))
+
+#t test of reoccurance
+rec = table(data['reoccurance'])
+shapiro.test(as.numeric(data$reoccurance))  #notnormal
+
+#t test of irradiat
+ir = table(data['irradiat'])
+shapiro.test(as.numeric(data$irradiat))
+
+#How do we test non normal data?
+#This tests reoccurence against breast
+kruskal.test(as.numeric(data$reoccurance) ~ as.numeric(data$breast), data=data)
+
+#This tests reocurrence against irradiat
+kruskal.test(as.numeric(data$reoccurance) ~ as.numeric(data$irradiat), data=data)
+
+#Logistic regression
+pm = glm(reoccurance ~., data = data, family = binomial(logit))
+summary(pm)
+
+
+#SECOND RESEARCH QUESTION: Are any variables associated with each other? Esp degree of malignancy
+#
+tblA1 = table(data$tmsize, data$breast)
+chisq.test(tblA1)
+
+#
+tblA2 = table(data$maldeg, data$tmsize)
+chisq.test(tblA2)
+
+#
+tblA3 = table(data$maldeg, data$age)
+chisq.test(tblA3)
+
+#
+tblA4 = table(data$maldeg, data$meno)
+chisq.test(tblA4)
+
+#
+tblA5 = table(data$maldeg, data$invnodes)
+chisq.test(tblA5)
+
+#
+tblA6 = table(data$maldeg, data$nodecaps)
+tblA6.1 = tblA6[,-1] 
+chisq.test(tblA6.1)
+
+#
+tblA7 = table(data$maldeg, data$breast)
+chisq.test(tblA7)
+
+#
+tblA8 = table(data$maldeg, data$quad)
+tblA8.1 = tblA8[,-1] 
+chisq.test(tblA8.1)
+
+#
+tblA9 = table(data$maldeg, data$irradiat)
+chisq.test(tblA9)
+
+
+#Two sample t-tests
+t.test(mg,cat)
+t.test(mg,lr)
+t.test(mg,mn)
 ```
 
 
